@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Pedidos - VapersBang 💨</title>
+  <link rel="stylesheet" href="components/style.css">
+  <style>
+    body {
+      background: radial-gradient(circle at top, #1a001f, #0e0011);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      text-align: center;
+      min-height: 100vh;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    main {
+      max-width: 1000px;
+      margin: 80px auto;
+      background: rgba(26, 0, 36, 0.9);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 0 25px rgba(180, 0, 255, 0.3);
+    }
+
+    h2 {
+      color: #c77dff;
+      font-size: 1.8rem;
+      margin-bottom: 25px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    th {
+      background: rgba(150, 0, 255, 0.2);
+      color: #c77dff;
+    }
+
+    tr:hover {
+      background: rgba(255,255,255,0.05);
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    input[type="text"], input[type="date"] {
+      padding: 10px 14px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      width: 48%;
+      font-size: 1rem;
+    }
+
+    button {
+      background: linear-gradient(90deg, #a200ff, #6a00f4);
+      border: none;
+      border-radius: 15px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 12px 24px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 15px rgba(162, 0, 255, 0.6);
+    }
+
+    .login-box {
+      max-width: 400px;
+      margin: 150px auto;
+      background: rgba(26, 0, 36, 0.85);
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(150, 0, 255, 0.3);
+    }
+
+    input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      margin: 10px 0 20px;
+      font-size: 1rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+  <custom-navbar></custom-navbar>
+
+  <!-- Login -->
+  <div class="login-box" id="login-box">
+    <h2>🔒 Acceso al Panel</h2>
+    <p>Introduce la contraseña de administrador:</p>
+    <input type="password" id="admin-pass" placeholder="Contraseña">
+    <button id="login-btn">Entrar</button>
+    <p id="login-error" style="color:#f66;display:none;margin-top:10px;">❌ Contraseña incorrecta</p>
+  </div>
+
+  <!-- Panel principal -->
+  <main id="admin-panel" style="display:none;">
+    <h2>📦 Pedidos Recibidos</h2>
+
+    <div class="filters">
+      <input type="text" id="search" placeholder="Buscar cliente o correo...">
+      <input type="date" id="date-filter">
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Cliente</th>
+          <th>Correo</th>
+          <th>Método</th>
+          <th>Total</th>
+          <th>Productos</th>
+        </tr>
+      </thead>
+      <tbody id="pedidos-body"></tbody>
+    </table>
+
+    <div style="margin-top:30px;">
+      <button id="export-btn">📄 Exportar CSV</button>
+      <button id="clear-btn" style="background:#ff3366;">🧹 Limpiar Registro</button>
+    </div>
+  </main>
+
+  <custom-footer></custom-footer>
+
+  <script src="components/navbar.js" defer></script>
+  <script src="components/footer.js" defer></script>
+
+  <script>
+    const ADMIN_PASSWORD = "vapersbang#"; // ⚙️ Cambia la contraseña
+
+    const loginBox = document.getElementById("login-box");
+    const adminPanel = document.getElementById("admin-panel");
+
+    document.getElementById("login-btn").addEventListener("click", () => {
+      const pass = document.getElementById("admin-pass").value;
+      if (pass === ADMIN_PASSWORD) {
+        loginBox.style.display = "none";
+        adminPanel.style.display = "block";
+        loadOrders();
+      } else {
+        document.getElementById("login-error").style.display = "block";
+      }
+    });
+
+    // ✅ Cargar pedidos
+    function loadOrders() {
+      const pedidos = JSON.parse(localStorage.getItem("pedidos_guardados")) || [];
+      const tbody = document.getElementById("pedidos-body");
+      tbody.innerHTML = "";
+
+      if (pedidos.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#aaa;">No hay pedidos registrados</td></tr>`;
+        return;
+      }
+
+      pedidos.forEach(p => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${p.fecha || new Date().toLocaleDateString()}</td>
+          <td>${p.nombre}</td>
+          <td>${p.email}</td>
+          <td>${p.metodo}</td>
+          <td>${p.total}</td>
+          <td>${p.productos.replace(/\n/g, '<br>')}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // 🔍 Buscador
+    document.getElementById("search").addEventListener("input", (e) => {
+      const value = e.target.value.toLowerCase();
+      document.querySelectorAll("#pedidos-body tr").forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(value) ? "" : "none";
+      });
+    });
+
+    // 📅 Filtro por fecha
+    document.getElementById("date-filter").addEventListener("change", (e) => {
+      const selected = e.target.value;
+      document.querySelectorAll("#pedidos-body tr").forEach(row => {
+        const date = row.children[0].textContent;
+        row.style.display = date === selected ? "" : "none";
+      });
+    });
+
+    // 📄 Exportar CSV
+    document.getElementById("export-btn").addEventListener("click", () => {
+      const pedidos = JSON.parse(localStorage.getItem("pedidos_guardados")) || [];
+      if (pedidos.length === 0) return alert("No hay pedidos para exportar");
+
+      const csvContent = [
+        ["Fecha", "Cliente", "Correo", "Método", "Total", "Productos"],
+        ...pedidos.map(p => [p.fecha, p.nombre, p.email, p.metodo, p.total, p.productos])
+      ].map(e => e.join(",")).join("\n");
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "pedidos_vapersbang.csv";
+      link.click();
+    });
+
+    // 🧹 Limpiar
+    document.getElementById("clear-btn").addEventListener("click", () => {
+      if (confirm("¿Seguro que deseas borrar todos los pedidos?")) {
+        localStorage.removeItem("pedidos_guardados");
+        loadOrders();
+      }
+    });
+  </script>
+</body>
+</html>

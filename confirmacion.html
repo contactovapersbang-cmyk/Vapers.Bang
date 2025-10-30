@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confirmación de Pedido - VapersBang 💨</title>
+  <link rel="stylesheet" href="components/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+  <style>
+    body {
+      background: radial-gradient(circle at top, #1a001f, #0e0011);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      text-align: center;
+      overflow: hidden;
+      animation: fadeIn 1s ease;
+    }
+
+    main {
+      max-width: 700px;
+      margin: 100px auto;
+      background: rgba(26, 0, 36, 0.9);
+      padding: 40px;
+      border-radius: 25px;
+      box-shadow: 0 0 30px rgba(162, 0, 255, 0.4);
+    }
+
+    h1 {
+      color: #c77dff;
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      color: #a64eff;
+      margin-bottom: 20px;
+    }
+
+    p {
+      color: #ddd;
+      font-size: 1.1rem;
+      margin: 10px 0;
+    }
+
+    .pedido-resumen {
+      background: rgba(40, 0, 60, 0.6);
+      padding: 20px;
+      border-radius: 15px;
+      text-align: left;
+      margin-top: 30px;
+    }
+
+    .pedido-resumen h3 {
+      color: #c77dff;
+      margin-bottom: 15px;
+    }
+
+    .pedido-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 8px;
+    }
+
+    button {
+      background: linear-gradient(90deg, #a200ff, #6a00f4);
+      border: none;
+      border-radius: 15px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 12px 24px;
+      margin-top: 30px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 15px rgba(162, 0, 255, 0.6);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+  <custom-navbar></custom-navbar>
+
+  <main>
+    <h1>🎉 ¡Compra completada con éxito!</h1>
+    <h2>Gracias por confiar en VapersBang 💨</h2>
+    <p>Tu pedido ha sido confirmado y será enviado lo antes posible.</p>
+
+    <div class="pedido-resumen">
+      <h3>📦 Resumen del Pedido</h3>
+      <div id="pedido-items"></div>
+      <p><strong>Total:</strong> <span id="pedido-total">0.00 €</span></p>
+
+      <h3>🧾 Datos del Cliente</h3>
+      <p><strong>Nombre:</strong> <span id="cliente-nombre"></span></p>
+      <p><strong>Email:</strong> <span id="cliente-email"></span></p>
+      <p><strong>Dirección:</strong> <span id="cliente-direccion"></span></p>
+      <p><strong>Método de Pago:</strong> <span id="cliente-metodo"></span></p>
+    </div>
+
+    <button id="volver-btn">Volver al inicio</button>
+  </main>
+
+  <custom-footer></custom-footer>
+
+  <script src="components/navbar.js" defer></script>
+  <script src="components/footer.js" defer></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const pedido = JSON.parse(localStorage.getItem("pedido"));
+      const carrito = JSON.parse(localStorage.getItem("cart")) || [];
+
+      const itemsEl = document.getElementById("pedido-items");
+      const totalEl = document.getElementById("pedido-total");
+
+      let total = 0;
+
+      carrito.forEach(item => {
+        const subtotal = item.price * (item.quantity || 1);
+        total += subtotal;
+
+        const div = document.createElement("div");
+        div.classList.add("pedido-item");
+        div.innerHTML = `
+          <span>${item.name} (x${item.quantity || 1})</span>
+          <span>${subtotal.toFixed(2)} €</span>
+        `;
+        itemsEl.appendChild(div);
+      });
+
+      totalEl.textContent = total.toFixed(2) + " €";
+
+      if (pedido) {
+        document.getElementById("cliente-nombre").textContent = pedido.nombre;
+        document.getElementById("cliente-email").textContent = pedido.email;
+        document.getElementById("cliente-direccion").textContent = pedido.direccion;
+        document.getElementById("cliente-metodo").textContent = pedido.metodo;
+      }
+
+      // 🎉 Efecto confeti
+      setTimeout(() => {
+        const duration = 2 * 1000;
+        const animationEnd = Date.now() + duration;
+        const defaults = { startVelocity: 25, spread: 360, ticks: 60, zIndex: 9999 };
+
+        function randomInRange(min, max) {
+          return Math.random() * (max - min) + min;
+        }
+
+        const interval = setInterval(() => {
+          const timeLeft = animationEnd - Date.now();
+          if (timeLeft <= 0) return clearInterval(interval);
+
+          const particleCount = 50 * (timeLeft / duration);
+          confetti({
+            ...defaults,
+            particleCount,
+            origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+          });
+          confetti({
+            ...defaults,
+            particleCount,
+            origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+          });
+        }, 250);
+      }, 500);
+
+     // 💌 Envío del correo de confirmación con EmailJS
+if (pedido && carrito.length > 0) {
+  emailjs.init("4shie12fAtEnsxmBW"); // ✅ Sustituye por tu clave pública de EmailJS
+
+  const productosTexto = carrito.map(i =>
+    `${i.name} (x${i.quantity || 1}) - ${(i.price * (i.quantity || 1)).toFixed(2)} €`
+  ).join('\n');
+
+  const templateParams = {
+    to_email: pedido.email, // correo del cliente
+    admin_email: "contacto.vapersbang@gmail.com", // tu correo interno 📩
+    from_name: "VapersBang 💨",
+    cliente_nombre: pedido.nombre,
+    cliente_direccion: pedido.direccion,
+    metodo_pago: pedido.metodo,
+    total_pedido: total.toFixed(2) + " €",
+    productos: productosTexto
+  };
+
+  // ✅ Envío al cliente
+  emailjs.send("service_npmw5ks", "template_ga2q78i", templateParams)
+  subject: "📦 Nuevo pedido recibido – VapersBang"
+.then(() => console.log("✅ Correo de confirmación enviado a " + pedido.email))
+.catch(err => console.error("❌ Error al enviar correo al cliente:", err));
+
+  // 📩 Envío copia al administrador
+  const adminParams = { ...templateParams, to_email: "contacto.vapersbang@gmail.com" };
+
+  emailjs.send("service_npmw5ks", "template_ga2q78i", adminParams)
+    .then(() => console.log("📩 Copia enviada a administrador"))
+    .catch(err => console.error("⚠️ Error al enviar copia al admin:", err));
+}
+      // 🧾 Guardar pedido en el registro local
+let pedidosGuardados = JSON.parse(localStorage.getItem("pedidos_guardados")) || [];
+
+const nuevoPedido = {
+  nombre: pedido.nombre,
+  email: pedido.email,
+  direccion: pedido.direccion,
+  metodo: pedido.metodo,
+  total: total.toFixed(2) + " €",
+  productos: productosTexto
+};
+
+pedidosGuardados.push(nuevoPedido);
+localStorage.setItem("pedidos_guardados", JSON.stringify(pedidosGuardados));
+
+  </script>
+  </body>
+</html>

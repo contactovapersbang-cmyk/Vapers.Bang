@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resumen del Pedido - VapersBang 💨</title>
+  <link rel="stylesheet" href="components/style.css" />
+  <style>
+    body {
+      background-color: #0e0011;
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      text-align: center;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    main {
+      margin: 80px auto;
+      max-width: 800px;
+      background: rgba(26, 0, 36, 0.85);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 0 25px rgba(180, 0, 255, 0.3);
+    }
+
+    h2 {
+      color: #c77dff;
+      font-size: 1.8rem;
+      margin-bottom: 25px;
+    }
+
+    .checkout-items {
+      text-align: left;
+      margin-bottom: 30px;
+    }
+
+    .checkout-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #1b0021;
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 10px;
+      box-shadow: 0 0 10px rgba(150, 0, 255, 0.3);
+    }
+
+    .checkout-item img {
+      width: 60px;
+      height: 60px;
+      border-radius: 10px;
+      margin-right: 15px;
+    }
+
+    .total {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #c77dff;
+      margin: 20px 0;
+    }
+
+    .pago-info {
+      text-align: left;
+      background: rgba(34, 0, 44, 0.7);
+      padding: 20px;
+      border-radius: 15px;
+      margin-top: 30px;
+    }
+
+    button {
+      background: linear-gradient(90deg, #a200ff, #6a00f4);
+      border: none;
+      border-radius: 15px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 12px 24px;
+      margin-top: 30px;
+      width: 100%;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 15px rgba(162, 0, 255, 0.6);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+  <custom-navbar></custom-navbar>
+
+  <main>
+    <h2>Resumen del Pedido 💨</h2>
+    <div id="checkout-items" class="checkout-items"></div>
+    <p id="checkout-total" class="total"></p>
+
+    <div id="payment-info" class="pago-info"></div>
+
+    <button id="finalizar-btn">Finalizar Compra</button>
+  </main>
+
+  <custom-footer></custom-footer>
+
+  <script src="components/cartManager.js" defer></script>
+  <script src="components/navbar.js" defer></script>
+  <script src="components/footer.js" defer></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const itemsEl = document.getElementById("checkout-items");
+      const totalEl = document.getElementById("checkout-total");
+      const paymentInfoEl = document.getElementById("payment-info");
+
+      const cart = window.cartManager ? window.cartManager.getCart() : [];
+      const pedido = JSON.parse(localStorage.getItem("pedido"));
+
+      let total = 0;
+
+      if (cart.length === 0) {
+        itemsEl.innerHTML = "<p>No hay productos en el carrito.</p>";
+        totalEl.textContent = "Total: 0.00 €";
+      } else {
+        cart.forEach(item => {
+          const subtotal = item.price * (item.quantity || 1);
+          total += subtotal;
+
+          const div = document.createElement("div");
+          div.classList.add("checkout-item");
+          div.innerHTML = `
+            <div style="display:flex; align-items:center;">
+              <img src="${item.img}" alt="${item.name}">
+              <div>
+                <p><strong>${item.name}</strong></p>
+                <p>${item.price.toFixed(2)} € x ${item.quantity || 1}</p>
+              </div>
+            </div>
+            <span>${subtotal.toFixed(2)} €</span>
+          `;
+          itemsEl.appendChild(div);
+        });
+
+        totalEl.textContent = "Total: " + total.toFixed(2) + " €";
+      }
+
+      if (pedido) {
+        paymentInfoEl.innerHTML = `
+          <h3>Método de Pago</h3>
+          <p><strong>Nombre:</strong> ${pedido.nombre}</p>
+          <p><strong>Correo:</strong> ${pedido.email}</p>
+          <p><strong>Dirección:</strong> ${pedido.direccion}</p>
+          <p><strong>Método elegido:</strong> ${pedido.metodo}</p>
+        `;
+      }
+
+      document.getElementById("finalizar-btn").addEventListener("click", () => {
+        window.location.href = "confirmacion.html";
+      });
+    });
+  </script>
+</body>
+</html>

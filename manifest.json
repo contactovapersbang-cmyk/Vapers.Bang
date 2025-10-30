@@ -1,0 +1,13 @@
+{
+  "name": "VapersBang",
+  "short_name": "VapersBang",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0f0b13",
+  "theme_color": "#b84aff",
+  "description": "Tienda oficial VapersBang - vapers y pods de alta calidad",
+  "icons": [
+    { "src": "favicon192.jpg", "sizes": "192x192", "type": "image/png" },
+    { "src": "favicon512.jpg", "sizes": "512x512", "type": "image/png" }
+  ]
+}

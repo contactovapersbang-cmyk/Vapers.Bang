@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contacto | VapersBang</title>
+  <link rel="stylesheet" href="components/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="icon" type="image/png" href="favicon192.png">
+<!-- 🟣 OPTIMIZACIÓN SEO + VELOCIDAD -->
+<meta name="description" content="VapersBang - Tienda oficial de vapers Bang. Descubre los mejores dispositivos desechables, líquidos y accesorios con envío rápido en toda España.">
+<meta name="keywords" content="vapers, bang, tienda vapers, vapeadores, desechables, líquidos, e-cig, vapersbang">
+<meta name="author" content="VapersBang">
+<meta name="theme-color" content="#6a00ff">
+<meta property="og:title" content="VapersBang - Tienda Oficial de Vapers" />
+<meta property="og:description" content="Compra vapers Bang de última generación con envío rápido y garantía. 🔥" />
+<meta property="og:image" content="logo.jpg" />
+<meta property="og:url" content="https://vapersbang.es" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="favicon-192.png" />
+
+<!-- Precarga de CSS para mejorar velocidad -->
+<link rel="preload" href="style.css" as="style">
+<link rel="stylesheet" href="style.css">
+
+<!-- Precarga de scripts esenciales -->
+<link rel="preload" href="components/cartManager.js" as="script">
+<link rel="preload" href="components/navbar.js" as="script">
+
+
+
+
+</head>
+<body>
+  <navbar-component></navbar-component>
+<!-- Cookie banner (pegar justo después del navbar) -->
+<div id="cookie-banner" class="cookie-banner hidden">
+  <p>Usamos cookies para mejorar tu experiencia. <a href="cookies.html">Más info</a></p>
+  <div>
+    <button id="accept-cookies" class="btn-accept">Aceptar</button>
+    <button id="reject-cookies" class="btn-reject">Rechazar</button>
+  </div>
+</div>
+
+  <main class="page-container fade-in">
+    <section class="content-box">
+      <h1>📩 Contáctanos</h1>
+      <p>¿Tienes dudas o sugerencias? Envíanos un mensaje y te responderemos lo antes posible.</p>
+
+      <form id="contact-form" class="contact-form">
+        <input type="text" id="name" name="from_name" placeholder="Tu nombre" required>
+        <input type="email" id="email" name="from_email" placeholder="Tu correo electrónico" required>
+        <textarea id="message" name="message" placeholder="Escribe tu mensaje aquí..." required></textarea>
+        <button type="submit" class="btn-primary">Enviar mensaje</button>
+      </form>
+
+      <p id="form-status" class="form-status"></p>
+    </section>
+  </main>
+
+  <footer-component></footer-component>
+
+  <script src="components/navbar.js"></script>
+  <script src="components/footer.js"></script>
+  <script src="components/notifications.js"></script>
+
+
+  <script>
+  (function() {
+    emailjs.init("4shie12fAtEnsxmBW"); // ⬅️ Reemplaza
+
+    const form = document.getElementById("contact-form");
+    const status = document.getElementById("form-status");
+
+    form.addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      status.textContent = "📤 Enviando mensaje...";
+      status.style.color = "#b84aff";
+
+      const formData = {
+        from_name: document.getElementById("name").value,
+        from_email: document.getElementById("email").value,
+        message: document.getElementById("message").value
+      };
+
+      try {
+        const response = await emailjs.send(
+          "service_npmw5ks", // ⬅️ Reemplaza
+          "template_zwv7ifs", // ⬅️ Reemplaza
+          formData
+        );
+
+        console.log("✅ EmailJS Response:", response);
+        status.textContent = "✅ Mensaje enviado con éxito. ¡Gracias por contactarnos!";
+        status.style.color = "#00ffb3";
+        form.reset();
+      } catch (error) {
+        console.error("❌ Error de EmailJS:", error);
+        status.textContent = "❌ Error al enviar el mensaje. Intenta nuevamente.";
+        status.style.color = "#ff4f4f";
+      }
+    });
+  })();
+</script>
+  <section class="content-box reveal">
+  <h1>💨 Bienvenido a VapersBang</h1>
+  <p>Tu tienda oficial de vapers premium.</p>
+</section>
+
+</body>
+</html>

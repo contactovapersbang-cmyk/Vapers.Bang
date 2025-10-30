@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pago - VapersBang 💳</title>
+  <link rel="stylesheet" href="components/style.css">
+  <style>
+    body {
+      background-color: #0e0011;
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+
+    .main-content {
+      margin: 80px auto;
+      max-width: 500px;
+      background: rgba(26, 0, 36, 0.85);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 0 25px rgba(180, 0, 255, 0.3);
+    }
+
+    h2 {
+      color: #c77dff;
+      font-size: 1.8rem;
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      color: #d1b3ff;
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+      margin-top: 20px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      background-color: #1b0024;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: box-shadow 0.3s ease;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      box-shadow: 0 0 10px #b100ff;
+    }
+
+    textarea {
+      resize: none;
+      height: 80px;
+    }
+
+    button {
+      background: linear-gradient(90deg, #a200ff, #6a00f4);
+      border: none;
+      border-radius: 15px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 12px 24px;
+      margin-top: 30px;
+      width: 100%;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 15px rgba(162, 0, 255, 0.6);
+    }
+
+    .payment-details {
+      display: none;
+      margin-top: 15px;
+      text-align: left;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+  <custom-navbar></custom-navbar>
+
+  <main class="main-content fade-in">
+    <h2>Finalizar Compra 💳</h2>
+    <form id="payment-form" class="checkout-form">
+      <label for="nombre">Nombre completo</label>
+      <input type="text" id="nombre" placeholder="Ej: Dani Martínez" required>
+
+      <label for="email">Correo electrónico</label>
+      <input type="email" id="email" placeholder="Ej: contacto@email.com" required>
+
+      <label for="direccion">Dirección de envío</label>
+      <textarea id="direccion" placeholder="Calle, número, ciudad..." required></textarea>
+
+      <label for="metodo">Método de pago</label>
+      <select id="metodo" required>
+        <option value="">Selecciona un método</option>
+        <option value="tarjeta">💳 Tarjeta de crédito o débito</option>
+        <option value="paypal">💰 PayPal</option>
+        <option value="stripe">⚡ Stripe</option>
+      </select>
+
+      <!-- Campos dinámicos de pago -->
+      <div id="payment-details" class="payment-details"></div>
+
+      <button type="submit" class="add-to-cart">Proceder al pago</button>
+    </form>
+  </main>
+
+  <custom-footer></custom-footer>
+
+  <!-- Scripts -->
+  <script src="components/cartManager.js" defer></script>
+  <script src="components/navbar.js" defer></script>
+  <script src="components/footer.js" defer></script>
+
+  <script>
+    const metodoSelect = document.getElementById("metodo");
+    const detailsDiv = document.getElementById("payment-details");
+
+    metodoSelect.addEventListener("change", () => {
+      const metodo = metodoSelect.value;
+      detailsDiv.innerHTML = ""; // limpia campos anteriores
+
+      if (metodo === "tarjeta") {
+        detailsDiv.innerHTML = `
+          <label for="numero">Número de tarjeta</label>
+          <input type="text" id="numero" maxlength="16" placeholder="1234 5678 9012 3456" required>
+          <label for="fecha">Fecha de caducidad</label>
+          <input type="month" id="fecha" required>
+          <label for="cvv">CVV</label>
+          <input type="text" id="cvv" maxlength="3" placeholder="123" required>
+        `;
+        detailsDiv.style.display = "block";
+      } else if (metodo === "paypal") {
+        detailsDiv.innerHTML = `
+          <label for="paypal-email">Correo de PayPal</label>
+          <input type="email" id="paypal-email" placeholder="usuario@paypal.com" required>
+        `;
+        detailsDiv.style.display = "block";
+      } else if (metodo === "stripe") {
+        detailsDiv.innerHTML = `
+          <label for="stripe-id">ID de Stripe</label>
+          <input type="text" id="stripe-id" placeholder="Ej: cus_J7F7L9fH92" required>
+        `;
+        detailsDiv.style.display = "block";
+      } else {
+        detailsDiv.style.display = "none";
+      }
+    });
+
+    document.getElementById("payment-form").addEventListener("submit", e => {
+      e.preventDefault();
+
+      const nombre = document.getElementById("nombre").value;
+      const email = document.getElementById("email").value;
+      const direccion = document.getElementById("direccion").value;
+      const metodo = metodoSelect.value;
+
+      if (!metodo) {
+        alert("Por favor, selecciona un método de pago.");
+        return;
+      }
+
+      localStorage.setItem("pedido", JSON.stringify({ nombre, email, direccion, metodo }));
+      window.location.href = "checkout.html";
+    });
+  </script>
+</body>
+</html>

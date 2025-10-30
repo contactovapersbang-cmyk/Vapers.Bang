@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrito - VapersBang</title>
+  <link rel="stylesheet" href="components/style.css">
+  <style>
+    body {
+      background-color: #0f0f0f;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #b84cff;
+      margin-bottom: 20px;
+    }
+
+    .cart-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #1b0021;
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(150, 0, 255, 0.3);
+      padding: 20px;
+      text-align: left;
+      position: relative;
+    }
+
+    .cart-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding: 10px 0;
+    }
+
+    .cart-item img {
+      width: 70px;
+      height: 70px;
+      border-radius: 10px;
+      margin-right: 10px;
+    }
+
+    .cart-item span {
+      flex: 1;
+      color: white;
+      font-size: 15px;
+    }
+
+    .remove-btn {
+      background: #ff4f7b;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .remove-btn:hover {
+      background: #e6396a;
+    }
+
+    .empty {
+      color: #bbb;
+      text-align: center;
+      padding: 30px;
+    }
+
+    .cart-summary {
+      position: fixed;
+      right: 40px;
+      bottom: 40px;
+      background: #1b0021;
+      padding: 18px 25px;
+      border-radius: 18px;
+      box-shadow: 0 0 15px rgba(150, 0, 255, 0.4);
+      color: #fff;
+      text-align: center;
+      z-index: 999;
+      animation: slideIn 0.8s ease;
+    }
+
+    .cart-summary h3 {
+      color: #b84cff;
+      margin-bottom: 5px;
+    }
+
+    .cart-summary p {
+      margin: 5px 0;
+      font-size: 15px;
+    }
+
+    .btn-finalize {
+      background: #b84cff;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 15px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: 0.3s ease;
+    }
+
+    .btn-finalize:hover {
+      background: #8a2be2;
+    }
+
+    /* Modal de confirmación */
+    #confirm-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content {
+      background: #1b0021;
+      padding: 30px;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 0 25px rgba(150, 0, 255, 0.5);
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .modal-content h2 {
+      color: #b84cff;
+      margin-bottom: 15px;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+    }
+
+    .btn-confirm {
+      background: #b84cff;
+      border: none;
+      padding: 10px 20px;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .btn-confirm:hover {
+      background: #8a2be2;
+    }
+
+    .btn-cancel {
+      background: #ff4f7b;
+      border: none;
+      padding: 10px 20px;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .btn-cancel:hover {
+      background: #e6396a;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+  <!-- SEO / Performance essentials -->
+<meta name="description" content="VapersBang - Tienda oficial de vapers Bang. Envío rápido en España.">
+<meta name="keywords" content="vapers, bang, tienda vapers, vapeadores, desechables">
+<meta name="author" content="VapersBang">
+<meta name="theme-color" content="#6a00ff">
+
+<!-- Open Graph (compartir redes) -->
+<meta property="og:title" content="VapersBang - Tienda Oficial" />
+<meta property="og:description" content="Compra vapers Bang con envío rápido." />
+<meta property="og:image" content="logo.jpg" />
+<meta property="og:type" content="website" />
+
+<!-- Favicon y preloads -->
+<link rel="icon" href="favicon192.jpg" />
+<link rel="preload" href="components/style.css" as="style">
+<link rel="stylesheet" href="components/style.css">
+<link rel="preload" href="components/cartManager.js" as="script">
+
+</head>
+<body>
+<navbar-component></navbar-component>
+  <!-- Cookie banner (pegar justo después del navbar) -->
+<div id="cookie-banner" class="cookie-banner hidden">
+  <p>Usamos cookies para mejorar tu experiencia. <a href="cookies.html">Más info</a></p>
+  <div>
+    <button id="accept-cookies" class="btn-accept">Aceptar</button>
+    <button id="reject-cookies" class="btn-reject">Rechazar</button>
+  </div>
+</div>
+
+  <h1>🛒 Tu Carrito</h1>
+
+  <div class="cart-container" id="cart-container">
+    <p class="empty" id="empty-text">No hay productos en el carrito.</p>
+  </div>
+
+  <div class="cart-summary" id="cart-summary" style="display:none;">
+    <h3>Resumen</h3>
+    <p>Total: <span id="total-price">0.00 €</span></p>
+    <button class="btn-finalize" id="checkout-btn">Finalizar compra</button>
+  </div>
+
+  <!-- Modal de confirmación -->
+  <div id="confirm-modal">
+    <div class="modal-content">
+      <h2>¿Eliminar producto?</h2>
+      <p>¿Estás seguro de que quieres eliminar este producto del carrito?</p>
+      <div class="modal-buttons">
+        <button class="btn-confirm" id="confirm-yes">Sí, eliminar</button>
+        <button class="btn-cancel" id="confirm-no">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const cartContainer = document.getElementById("cart-container");
+      const emptyText = document.getElementById("empty-text");
+      const cartSummary = document.getElementById("cart-summary");
+      const totalPrice = document.getElementById("total-price");
+      const checkoutBtn = document.getElementById("checkout-btn");
+
+      const confirmModal = document.getElementById("confirm-modal");
+      const confirmYes = document.getElementById("confirm-yes");
+      const confirmNo = document.getElementById("confirm-no");
+      let productToRemove = null;
+
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+      if (cart.length === 0) {
+        emptyText.style.display = "block";
+        cartSummary.style.display = "none";
+        return;
+      }
+
+      emptyText.style.display = "none";
+      cartSummary.style.display = "block";
+
+      let total = 0;
+      cartContainer.innerHTML = "";
+
+      cart.forEach((item, index) => {
+        const subtotal = item.price * (item.quantity || 1);
+        total += subtotal;
+
+        const div = document.createElement("div");
+        div.classList.add("cart-item");
+        div.innerHTML = `
+          <img src="${item.img}" alt="${item.name}">
+          <span>${item.name} × ${item.quantity || 1}</span>
+          <span>${subtotal.toFixed(2)} €</span>
+          <button class="remove-btn" data-index="${index}">Eliminar</button>
+        `;
+        cartContainer.appendChild(div);
+      });
+
+      totalPrice.textContent = total.toFixed(2) + " €";
+
+      // Eliminar con confirmación
+      document.querySelectorAll(".remove-btn").forEach(btn => {
+        btn.addEventListener("click", e => {
+          productToRemove = e.target.dataset.index;
+          confirmModal.style.display = "flex";
+        });
+      });
+
+      confirmNo.addEventListener("click", () => {
+        confirmModal.style.display = "none";
+        productToRemove = null;
+      });
+
+      confirmYes.addEventListener("click", () => {
+        if (productToRemove !== null) {
+          cart.splice(productToRemove, 1);
+          localStorage.setItem("cart", JSON.stringify(cart));
+          confirmModal.style.display = "none";
+          window.location.reload();
+        }
+      });
+
+      // Finalizar compra
+      checkoutBtn.addEventListener("click", () => {
+        localStorage.setItem("lastPurchase", JSON.stringify(cart));
+        window.location.href = "pago.html";
+      });
+    });
+    // Dentro del listener de confirmYes
+confirmYes.addEventListener("click", () => {
+  if (productToRemove !== null) {
+    if (window.vapersEffects) {
+      window.vapersEffects.playSound("remove");
+      window.vapersEffects.vibrate(150);
+    }
+    cart.splice(productToRemove, 1);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    confirmModal.style.display = "none";
+    window.location.reload();
+  }
+});
+if (window.vapersNotification) {
+  window.vapersNotification.show("Producto eliminado del carrito ❌");
+}
+
+    
+  </script>
+  <script src="components/effects.js"></script>
+  <script src="components/minicart.js"></script>
+<div id="cart-controls" style="text-align:center; margin-top:20px;">
+  <button id="clear-cart" class="btn-clear" style="display:none;">🗑️ Vaciar carrito</button>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const clearBtn = document.getElementById("clear-cart");
+  const cart = window.cartManager.getCart();
+
+  if (cart.length > 0) {
+    clearBtn.style.display = "inline-block";
+  }
+
+  clearBtn.addEventListener("click", () => {
+    if (confirm("¿Vaciar todo el carrito?")) {
+      window.cartManager.clearCart();
+      location.reload();
+    }
+  });
+});
+</script>
+
+</body>
+</html>
